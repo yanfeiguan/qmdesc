@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qmdesc.handler &mdash; qmdesc 1.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> qmdesc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">qmdesc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>qmdesc.handler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for qmdesc.handler</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines the PathwayRankingHandler for use in Torchserve.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">qmdesc.featurization</span> <span class="kn">import</span> <span class="n">mol2graph</span><span class="p">,</span> <span class="n">get_atom_fdim</span><span class="p">,</span> <span class="n">get_bond_fdim</span>
+<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+
+<div class="viewcode-block" id="ReactivityDescriptorHandler"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler">[docs]</a><span class="k">class</span> <span class="nc">ReactivityDescriptorHandler</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+
+        <span class="n">model_pt_path</span> <span class="o">=</span> <span class="s2">&quot;QM_137k.pt&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">qmdesc.model</span> <span class="kn">import</span> <span class="n">MoleculeModel</span>
+
+        <span class="c1"># Load model and args</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_stream</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">storage</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="n">storage</span><span class="p">)</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">loaded_state_dict</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;state_dict&#39;</span><span class="p">]</span>
+        <span class="n">atom_fdim</span> <span class="o">=</span> <span class="n">get_atom_fdim</span><span class="p">()</span>
+        <span class="n">bond_fdim</span> <span class="o">=</span> <span class="n">get_bond_fdim</span><span class="p">()</span> <span class="o">+</span> <span class="n">atom_fdim</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">MoleculeModel</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">atom_fdim</span><span class="p">,</span> <span class="n">bond_fdim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">loaded_state_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initalized</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="ReactivityDescriptorHandler.preprocess"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">):</span>
+        <span class="n">mol_graph</span> <span class="o">=</span> <span class="n">mol2graph</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+        <span class="n">f_atoms</span><span class="p">,</span> <span class="n">f_bonds</span><span class="p">,</span> <span class="n">a2b</span><span class="p">,</span> <span class="n">b2a</span><span class="p">,</span> <span class="n">b2revb</span><span class="p">,</span> <span class="n">a_scope</span><span class="p">,</span> <span class="n">b_scope</span><span class="p">,</span> <span class="n">b2br</span><span class="p">,</span> <span class="n">bond_types</span> <span class="o">=</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+        <span class="n">f_atoms</span><span class="p">,</span> <span class="n">f_bonds</span><span class="p">,</span> <span class="n">a2b</span><span class="p">,</span> <span class="n">b2a</span><span class="p">,</span> <span class="n">b2revb</span><span class="p">,</span> <span class="n">b2br</span><span class="p">,</span> <span class="n">bond_types</span> <span class="o">=</span> \
+            <span class="n">f_atoms</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">f_bonds</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">a2b</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">b2a</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> \
+            <span class="n">b2revb</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">b2br</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">bond_types</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f_atoms</span><span class="p">,</span> <span class="n">f_bonds</span><span class="p">,</span> <span class="n">a2b</span><span class="p">,</span> <span class="n">b2a</span><span class="p">,</span> <span class="n">b2revb</span><span class="p">,</span> <span class="n">a_scope</span><span class="p">,</span> <span class="n">b_scope</span><span class="p">,</span> <span class="n">b2br</span><span class="p">,</span> <span class="n">bond_types</span></div>
+
+<div class="viewcode-block" id="ReactivityDescriptorHandler.inference"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler.inference">[docs]</a>    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">descs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">descs</span></div>
+
+<div class="viewcode-block" id="ReactivityDescriptorHandler.postprocess"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler.postprocess">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inference_output</span><span class="p">):</span>
+
+        <span class="n">smiles</span> <span class="o">=</span> <span class="n">inference_output</span><span class="p">[</span><span class="s1">&#39;smiles&#39;</span><span class="p">]</span>
+        <span class="n">descs</span> <span class="o">=</span> <span class="n">inference_output</span><span class="p">[</span><span class="s1">&#39;descs&#39;</span><span class="p">]</span>
+
+        <span class="n">descs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">descs</span><span class="p">]</span>
+
+        <span class="n">partial_charge</span><span class="p">,</span> <span class="n">partial_neu</span><span class="p">,</span> <span class="n">partial_elec</span><span class="p">,</span> <span class="n">NMR</span><span class="p">,</span> <span class="n">bond_order</span><span class="p">,</span> <span class="n">bond_distance</span> <span class="o">=</span> <span class="n">descs</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;smiles&#39;</span><span class="p">:</span> <span class="n">smiles</span><span class="p">,</span> <span class="s1">&#39;partial_charge&#39;</span><span class="p">:</span> <span class="n">partial_charge</span><span class="p">,</span> <span class="s1">&#39;fukui_neu&#39;</span><span class="p">:</span> <span class="n">partial_neu</span><span class="p">,</span>
+                    <span class="s1">&#39;fukui_elec&#39;</span><span class="p">:</span> <span class="n">partial_elec</span><span class="p">,</span> <span class="s1">&#39;NMR&#39;</span><span class="p">:</span> <span class="n">NMR</span><span class="p">,</span> <span class="s1">&#39;bond_order&#39;</span><span class="p">:</span> <span class="n">bond_order</span><span class="p">,</span> <span class="s1">&#39;bond_length&#39;</span><span class="p">:</span> <span class="n">bond_distance</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="ReactivityDescriptorHandler.predict"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">,</span> <span class="n">sdf</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">([</span><span class="n">smiles</span><span class="p">]))</span>
+        <span class="n">postprocess_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;smiles&#39;</span><span class="p">:</span> <span class="n">smiles</span><span class="p">,</span> <span class="s1">&#39;descs&#39;</span><span class="p">:</span> <span class="n">outputs</span><span class="p">}</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">postprocess_inputs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sdf</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.sdf&#39;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;must provide a sdf name end up with </span><span class="se">\&#39;</span><span class="s1">.sdf</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">SDWriter</span><span class="p">(</span><span class="n">sdf</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">AddHs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+                <span class="n">p_upper</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;smiles&#39;</span><span class="p">:</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="n">p_upper</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="n">p_upper</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.sdf&#39;</span><span class="p">)</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="s1">&#39;_Name&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span></div></div>
+
+<div class="viewcode-block" id="qmdesc"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.handler.qmdesc">[docs]</a><span class="k">def</span> <span class="nf">qmdesc</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the entry point for the command line command :code:&#39;qmdesc&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;smiles&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input smiles string&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--sdf&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;qmdesc.sdf&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;output sdf saving the qm descriptors&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">predictor</span> <span class="o">=</span> <span class="n">ReactivityDescriptorHandler</span><span class="p">()</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">smiles</span><span class="p">,</span> <span class="n">sdf</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">sdf</span><span class="p">)</span></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Yanfei Guan, Haoyang Wu, Duminda Ranasinghe
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

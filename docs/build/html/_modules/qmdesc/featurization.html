@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qmdesc.featurization &mdash; qmdesc 1.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> qmdesc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">qmdesc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>qmdesc.featurization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for qmdesc.featurization</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Atom feature sizes</span>
+<span class="n">MAX_ATOMIC_NUM</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">ATOM_FEATURES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;atomic_num&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">MAX_ATOMIC_NUM</span><span class="p">)),</span>
+    <span class="s1">&#39;degree&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+    <span class="s1">&#39;formal_charge&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="s1">&#39;chiral_tag&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;num_Hs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+    <span class="s1">&#39;hybridization&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">HybridizationType</span><span class="o">.</span><span class="n">SP</span><span class="p">,</span>
+        <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">HybridizationType</span><span class="o">.</span><span class="n">SP2</span><span class="p">,</span>
+        <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">HybridizationType</span><span class="o">.</span><span class="n">SP3</span><span class="p">,</span>
+        <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">HybridizationType</span><span class="o">.</span><span class="n">SP3D</span><span class="p">,</span>
+        <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">HybridizationType</span><span class="o">.</span><span class="n">SP3D2</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+<span class="c1"># Distance feature sizes</span>
+<span class="n">PATH_DISTANCE_BINS</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">THREE_D_DISTANCE_MAX</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">THREE_D_DISTANCE_STEP</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">THREE_D_DISTANCE_BINS</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">THREE_D_DISTANCE_MAX</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">THREE_D_DISTANCE_STEP</span><span class="p">))</span>
+
+<span class="c1"># len(choices) + 1 to include room for uncommon values; + 2 at end for IsAromatic and mass</span>
+<span class="n">ATOM_FDIM</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">choices</span> <span class="ow">in</span> <span class="n">ATOM_FEATURES</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="n">BOND_FDIM</span> <span class="o">=</span> <span class="mi">14</span>
+
+<span class="c1"># Memoization</span>
+<span class="n">SMILES_TO_GRAPH</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="clear_cache"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.clear_cache">[docs]</a><span class="k">def</span> <span class="nf">clear_cache</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Clears featurization cache.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">SMILES_TO_GRAPH</span>
+    <span class="n">SMILES_TO_GRAPH</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="get_atom_fdim"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.get_atom_fdim">[docs]</a><span class="k">def</span> <span class="nf">get_atom_fdim</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the dimensionality of atom features.</span>
+<span class="sd">    :param: Arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ATOM_FDIM</span></div>
+
+
+<div class="viewcode-block" id="get_bond_fdim"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.get_bond_fdim">[docs]</a><span class="k">def</span> <span class="nf">get_bond_fdim</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the dimensionality of bond features.</span>
+<span class="sd">    :param: Arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">BOND_FDIM</span></div>
+
+
+<div class="viewcode-block" id="onek_encoding_unk"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.onek_encoding_unk">[docs]</a><span class="k">def</span> <span class="nf">onek_encoding_unk</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a one-hot encoding.</span>
+<span class="sd">    :param value: The value for which the encoding should be one.</span>
+<span class="sd">    :param choices: A list of possible values.</span>
+<span class="sd">    :return: A one-hot encoding of the value in a list of length len(choices) + 1.</span>
+<span class="sd">    If value is not in the list of choices, then the final element in the encoding is 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">encoding</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">choices</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">choices</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">encoding</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">encoding</span></div>
+
+
+<div class="viewcode-block" id="atom_features"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.atom_features">[docs]</a><span class="k">def</span> <span class="nf">atom_features</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Atom</span><span class="p">,</span> <span class="n">functional_groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Builds a feature vector for an atom.</span>
+<span class="sd">    :param atom: An RDKit atom.</span>
+<span class="sd">    :param functional_groups: A k-hot vector indicating the functional groups the atom belongs to.</span>
+<span class="sd">    :return: A list containing the atom features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">onek_encoding_unk</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ATOM_FEATURES</span><span class="p">[</span><span class="s1">&#39;atomic_num&#39;</span><span class="p">])</span> <span class="o">+</span> \
+               <span class="n">onek_encoding_unk</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetTotalDegree</span><span class="p">(),</span> <span class="n">ATOM_FEATURES</span><span class="p">[</span><span class="s1">&#39;degree&#39;</span><span class="p">])</span> <span class="o">+</span> \
+               <span class="n">onek_encoding_unk</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetFormalCharge</span><span class="p">(),</span> <span class="n">ATOM_FEATURES</span><span class="p">[</span><span class="s1">&#39;formal_charge&#39;</span><span class="p">])</span> <span class="o">+</span> \
+               <span class="n">onek_encoding_unk</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetChiralTag</span><span class="p">()),</span> <span class="n">ATOM_FEATURES</span><span class="p">[</span><span class="s1">&#39;chiral_tag&#39;</span><span class="p">])</span> <span class="o">+</span> \
+               <span class="n">onek_encoding_unk</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetTotalNumHs</span><span class="p">()),</span> <span class="n">ATOM_FEATURES</span><span class="p">[</span><span class="s1">&#39;num_Hs&#39;</span><span class="p">])</span> <span class="o">+</span> \
+               <span class="n">onek_encoding_unk</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetHybridization</span><span class="p">()),</span> <span class="n">ATOM_FEATURES</span><span class="p">[</span><span class="s1">&#39;hybridization&#39;</span><span class="p">])</span> <span class="o">+</span> \
+               <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetIsAromatic</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> \
+               <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">GetMass</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">]</span>  <span class="c1"># scaled to about the same range as other features</span>
+    <span class="k">if</span> <span class="n">functional_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">+=</span> <span class="n">functional_groups</span>
+    <span class="k">return</span> <span class="n">features</span></div>
+
+
+<div class="viewcode-block" id="bond_features"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.bond_features">[docs]</a><span class="k">def</span> <span class="nf">bond_features</span><span class="p">(</span><span class="n">bond</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">Bond</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Builds a feature vector for a bond.</span>
+<span class="sd">    :param bond: A RDKit bond.</span>
+<span class="sd">    :return: A list containing the bond features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">bond</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fbond</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">BOND_FDIM</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bt</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBondType</span><span class="p">()</span>
+        <span class="n">fbond</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mi">0</span><span class="p">,</span>  <span class="c1"># bond is not None</span>
+            <span class="n">bt</span> <span class="o">==</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">SINGLE</span><span class="p">,</span>
+            <span class="n">bt</span> <span class="o">==</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
+            <span class="n">bt</span> <span class="o">==</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">TRIPLE</span><span class="p">,</span>
+            <span class="n">bt</span> <span class="o">==</span> <span class="n">Chem</span><span class="o">.</span><span class="n">rdchem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">AROMATIC</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">bond</span><span class="o">.</span><span class="n">GetIsConjugated</span><span class="p">()</span> <span class="k">if</span> <span class="n">bt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">bond</span><span class="o">.</span><span class="n">IsInRing</span><span class="p">()</span> <span class="k">if</span> <span class="n">bt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">fbond</span> <span class="o">+=</span> <span class="n">onek_encoding_unk</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">bond</span><span class="o">.</span><span class="n">GetStereo</span><span class="p">()),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">fbond</span></div>
+
+
+<div class="viewcode-block" id="MolGraph"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.MolGraph">[docs]</a><span class="k">class</span> <span class="nc">MolGraph</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A MolGraph represents the graph structure and featurization of a single molecule.</span>
+<span class="sd">    A MolGraph computes the following attributes:</span>
+<span class="sd">    - smiles: Smiles string.</span>
+<span class="sd">    - n_atoms: The number of atoms in the molecule.</span>
+<span class="sd">    - n_bonds: The number of bonds in the molecule.</span>
+<span class="sd">    - f_atoms: A mapping from an atom index to a list atom features.</span>
+<span class="sd">    - f_bonds: A mapping from a bond index to a list of bond features.</span>
+<span class="sd">    - a2b: A mapping from an atom index to a list of incoming bond indices.</span>
+<span class="sd">    - b2a: A mapping from a bond index to the index of the atom the bond originates from.</span>
+<span class="sd">    - b2revb: A mapping from a bond index to the index of the reverse bond.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the graph structure and featurization of a molecule.</span>
+<span class="sd">        :param smiles: A smiles string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smiles</span> <span class="o">=</span> <span class="n">smiles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># number of atoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># number of bonds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># mapping from atom index to atom features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_bonds</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># mapping from bond index to concat(in_atom, bond) features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a2b</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># mapping from atom index to incoming bond indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b2a</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># mapping from bond index to the index of the atom the bond is coming from</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b2revb</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># mapping from bond index to the index of the reverse bond</span>
+
+        <span class="c1"># Convert smiles to molecule</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+
+        <span class="c1"># Add explicit Hs</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">AddHs</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+        <span class="c1"># fake the number of &quot;atoms&quot; if we are collapsing substructures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span>
+
+        <span class="c1"># mapping from real bond index (the same as in target) to the f_bonds, since each real has two bond features,</span>
+        <span class="c1"># only save the index of first one, the second one should be the first_index + 1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b2br</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetBonds</span><span class="p">()),</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">GetBondTypeAsDouble</span><span class="p">()</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBonds</span><span class="p">()]</span>
+
+        <span class="c1"># Get atom features</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtoms</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom_features</span><span class="p">(</span><span class="n">atom</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">a2b</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+
+        <span class="c1"># Get bond features</span>
+        <span class="k">for</span> <span class="n">a1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">a2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">):</span>
+                <span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">bond</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">f_bond</span> <span class="o">=</span> <span class="n">bond_features</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">f_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span><span class="p">[</span><span class="n">a1</span><span class="p">]</span> <span class="o">+</span> <span class="n">f_bond</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">f_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span><span class="p">[</span><span class="n">a2</span><span class="p">]</span> <span class="o">+</span> <span class="n">f_bond</span><span class="p">)</span>
+
+                <span class="c1"># Update index mappings</span>
+                <span class="n">b1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span>
+                <span class="n">b2</span> <span class="o">=</span> <span class="n">b1</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">a2b</span><span class="p">[</span><span class="n">a2</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span>  <span class="c1"># b1 = a1 --&gt; a2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b2a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">a2b</span><span class="p">[</span><span class="n">a1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b2</span><span class="p">)</span>  <span class="c1"># b2 = a2 --&gt; a1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b2a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b2revb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b2revb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b2br</span><span class="p">[</span><span class="n">bond</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">(),</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span> <span class="o">+=</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="BatchMolGraph"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.BatchMolGraph">[docs]</a><span class="k">class</span> <span class="nc">BatchMolGraph</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A BatchMolGraph represents the graph structure and featurization of a batch of molecules.</span>
+<span class="sd">    A BatchMolGraph contains the attributes of a MolGraph plus:</span>
+<span class="sd">    - smiles_batch: A list of smiles strings.</span>
+<span class="sd">    - n_mols: The number of molecules in the batch.</span>
+<span class="sd">    - atom_fdim: The dimensionality of the atom features.</span>
+<span class="sd">    - bond_fdim: The dimensionality of the bond features (technically the combined atom/bond features).</span>
+<span class="sd">    - a_scope: A list of tuples indicating the start and end atom indices for each molecule.</span>
+<span class="sd">    - b_scope: A list of tuples indicating the start and end bond indices for each molecule.</span>
+<span class="sd">    - max_num_bonds: The maximum number of bonds neighboring an atom in this batch.</span>
+<span class="sd">    - b2b: (Optional) A mapping from a bond index to incoming bond indices.</span>
+<span class="sd">    - a2a: (Optional): A mapping from an atom index to neighboring atom indices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol_graphs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MolGraph</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smiles_batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">smiles</span> <span class="k">for</span> <span class="n">mol_graph</span> <span class="ow">in</span> <span class="n">mol_graphs</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_mols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">smiles_batch</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom_fdim</span> <span class="o">=</span> <span class="n">get_atom_fdim</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_fdim</span> <span class="o">=</span> <span class="n">get_bond_fdim</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_fdim</span>
+
+        <span class="c1"># Start n_atoms and n_bonds at 1 b/c zero padding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># number of atoms (start at 1 b/c need index 0 as padding)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># number of bonds (start at 1 b/c need index 0 as padding)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_scope</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of tuples indicating (start_atom_index, num_atoms) for each molecule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_scope</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of tuples indicating (start_bond_index, num_bonds) for each molecule</span>
+
+        <span class="c1"># All start with zero padding so that indexing with zero padding returns zeros</span>
+        <span class="n">f_atoms</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_fdim</span><span class="p">]</span>  <span class="c1"># atom features</span>
+        <span class="n">f_bonds</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_fdim</span><span class="p">]</span>  <span class="c1"># combined atom/bond features</span>
+        <span class="n">a2b</span> <span class="o">=</span> <span class="p">[[]]</span>  <span class="c1"># mapping from atom index to incoming bond indices</span>
+        <span class="n">b2a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># mapping from bond index to the index of the atom the bond is coming from</span>
+        <span class="n">b2revb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># mapping from bond index to the index of the reverse bond</span>
+        <span class="n">b2br</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># mapping from f_bdons to real bonds in molecule recorded in target</span>
+
+        <span class="c1"># used as add-on for bond index</span>
+        <span class="n">bond_types</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># used for final add up of bond hiddens (because no unsorted_segment_sum in pytorch)</span>
+        <span class="k">for</span> <span class="n">mol_graph</span> <span class="ow">in</span> <span class="n">mol_graphs</span><span class="p">:</span>
+            <span class="n">f_atoms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">f_atoms</span><span class="p">)</span>
+            <span class="n">f_bonds</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">f_bonds</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">):</span>
+                <span class="n">a2b</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">b</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">a2b</span><span class="p">[</span><span class="n">a</span><span class="p">]])</span>
+
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">n_bonds</span><span class="p">):</span>
+                <span class="n">b2a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">+</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">b2a</span><span class="p">[</span><span class="n">b</span><span class="p">])</span>
+                <span class="n">b2revb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span> <span class="o">+</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">b2revb</span><span class="p">[</span><span class="n">b</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">a_scope</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">b_scope</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span><span class="p">,</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">n_bonds</span><span class="p">))</span>
+            <span class="n">b2br</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">b2br</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">+=</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">n_atoms</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_bonds</span> <span class="o">+=</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">n_bonds</span>
+
+            <span class="n">bond_types</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">bond_types</span><span class="p">)</span>
+
+        <span class="n">b2br</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">b2br</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_num_bonds</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">in_bonds</span><span class="p">)</span> <span class="k">for</span> <span class="n">in_bonds</span> <span class="ow">in</span> <span class="n">a2b</span><span class="p">))</span>  <span class="c1"># max with 1 to fix a crash in rare case of all single-heavy-atom mols</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">f_atoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_bonds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">f_bonds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a2b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([</span><span class="n">a2b</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_num_bonds</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">a2b</span><span class="p">[</span><span class="n">a</span><span class="p">]))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b2a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">b2a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b2revb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">b2revb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b2br</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">b2br</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_types</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">bond_types</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b2b</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># try to avoid computing b2b b/c O(n_atoms^3)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a2a</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># only needed if using atom messages</span>
+
+<div class="viewcode-block" id="BatchMolGraph.get_components"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.BatchMolGraph.get_components">[docs]</a>    <span class="k">def</span> <span class="nf">get_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">,</span>
+                                      <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">,</span>
+                                      <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">,</span>
+                                      <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the components of the BatchMolGraph.</span>
+<span class="sd">        :return: A tuple containing PyTorch tensors with the atom features, bond features, and graph structure</span>
+<span class="sd">        and two lists indicating the scope of the atoms and bonds (i.e. which molecules they belong to).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_atoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_bonds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">a2b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b2a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b2revb</span><span class="p">,</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">a_scope</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_scope</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b2br</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_types</span></div>
+
+<div class="viewcode-block" id="BatchMolGraph.get_b2b"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.BatchMolGraph.get_b2b">[docs]</a>    <span class="k">def</span> <span class="nf">get_b2b</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes (if necessary) and returns a mapping from each bond index to all the incoming bond indices.</span>
+<span class="sd">        :return: A PyTorch tensor containing the mapping from each bond index to all the incoming bond indices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">b2b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">b2b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a2b</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">b2a</span><span class="p">]</span>  <span class="c1"># num_bonds x max_num_bonds</span>
+            <span class="c1"># b2b includes reverse edge for each bond so need to mask out</span>
+            <span class="n">revmask</span> <span class="o">=</span> <span class="p">(</span><span class="n">b2b</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b2revb</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">b2b</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>  <span class="c1"># num_bonds x max_num_bonds</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">b2b</span> <span class="o">=</span> <span class="n">b2b</span> <span class="o">*</span> <span class="n">revmask</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">b2b</span></div>
+
+<div class="viewcode-block" id="BatchMolGraph.get_a2a"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.BatchMolGraph.get_a2a">[docs]</a>    <span class="k">def</span> <span class="nf">get_a2a</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes (if necessary) and returns a mapping from each atom index to all neighboring atom indices.</span>
+<span class="sd">        :return: A PyTorch tensor containing the mapping from each bond index to all the incodming bond indices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a2a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># b = a1 --&gt; a2</span>
+            <span class="c1"># a2b maps a2 to all incoming bonds b</span>
+            <span class="c1"># b2a maps each bond b to the atom it comes from a1</span>
+            <span class="c1"># thus b2a[a2b] maps atom a2 to neighboring atoms a1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">a2a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b2a</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">a2b</span><span class="p">]</span>  <span class="c1"># num_atoms x max_num_bonds</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a2a</span></div></div>
+
+
+<div class="viewcode-block" id="mol2graph"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.featurization.mol2graph">[docs]</a><span class="k">def</span> <span class="nf">mol2graph</span><span class="p">(</span><span class="n">smiles_batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BatchMolGraph</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a list of SMILES strings to a BatchMolGraph containing the batch of molecular graphs.</span>
+<span class="sd">    :param smiles_batch: A list of SMILES strings.</span>
+<span class="sd">    :return: A BatchMolGraph containing the combined molecular graph for the molecules</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mol_graphs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">smiles_batch</span><span class="p">:</span>
+        <span class="n">mol_graph</span> <span class="o">=</span> <span class="n">MolGraph</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+        <span class="n">mol_graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol_graph</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">BatchMolGraph</span><span class="p">(</span><span class="n">mol_graphs</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Yanfei Guan, Haoyang Wu, Duminda Ranasinghe
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

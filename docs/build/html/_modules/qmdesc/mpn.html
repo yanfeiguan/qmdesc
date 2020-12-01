@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qmdesc.mpn &mdash; qmdesc 1.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> qmdesc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">qmdesc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>qmdesc.mpn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for qmdesc.mpn</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;KMP_DUPLICATE_LIB_OK&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;True&#39;</span>
+
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">Namespace</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="kn">from</span> <span class="nn">qmdesc.nn_utils</span> <span class="kn">import</span> <span class="n">index_select_ND</span>
+
+
+<div class="viewcode-block" id="MPNEncoder"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.mpn.MPNEncoder">[docs]</a><span class="k">class</span> <span class="nc">MPNEncoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A message passing neural network for encoding a molecule.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Namespace</span><span class="p">,</span> <span class="n">atom_fdim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bond_fdim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the MPNEncoder.</span>
+
+<span class="sd">        :param args: Arguments.</span>
+<span class="sd">        :param atom_fdim: Atom features dimension.</span>
+<span class="sd">        :param bond_fdim: Bond features dimension.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MPNEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom_fdim</span> <span class="o">=</span> <span class="n">atom_fdim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_fdim</span> <span class="o">=</span> <span class="n">bond_fdim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bias</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers_per_message</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">undirected</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">undirected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom_messages</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">atom_messages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">features_only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_input_features</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">use_input_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_only</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+
+        <span class="c1"># Activation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+
+        <span class="c1"># Cached zeros</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cached_zero_vector</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Input</span>
+        <span class="n">input_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_fdim</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_messages</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_fdim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_i</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_messages</span><span class="p">:</span>
+            <span class="n">w_h_input_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_fdim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">w_h_input_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span>
+
+        <span class="c1"># Shared weight matrix across depths (default)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_h</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">w_h_input_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+
+        <span class="c1"># hidden state readout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_o_a</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_fdim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_o_b</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bond_fdim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MPNEncoder.forward"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.mpn.MPNEncoder.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">inputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Encodes a batch of molecular graphs.</span>
+<span class="sd">        :return: A PyTorch tensor of shape (num_molecules, hidden_size) containing the encoding of each molecule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">f_atoms</span><span class="p">,</span> <span class="n">f_bonds</span><span class="p">,</span> <span class="n">a2b</span><span class="p">,</span> <span class="n">b2a</span><span class="p">,</span> <span class="n">b2revb</span><span class="p">,</span> <span class="n">a_scope</span><span class="p">,</span> <span class="n">b_scope</span><span class="p">,</span> <span class="n">b2br</span><span class="p">,</span> <span class="n">bond_types</span> <span class="o">=</span> <span class="n">inputs</span>
+
+        <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_i</span><span class="p">(</span><span class="n">f_bonds</span><span class="p">)</span>  <span class="c1"># num_bonds x hidden_size</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>  <span class="c1"># num_bonds x hidden_size</span>
+
+        <span class="c1"># Message passing</span>
+        <span class="k">for</span> <span class="n">depth</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">undirected</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="n">message</span><span class="p">[</span><span class="n">b2revb</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+
+
+            <span class="c1"># m(a1 -&gt; a2) = [sum_{a0 \in nei(a1)} m(a0 -&gt; a1)] - m(a2 -&gt; a1)</span>
+            <span class="c1"># message      a_message = sum(nei_a_message)      rev_message</span>
+            <span class="n">nei_a_message</span> <span class="o">=</span> <span class="n">index_select_ND</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">a2b</span><span class="p">)</span>  <span class="c1"># num_atoms x max_num_bonds x hidden</span>
+            <span class="n">a_message</span> <span class="o">=</span> <span class="n">nei_a_message</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># num_atoms x hidden</span>
+            <span class="n">rev_message</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="n">b2revb</span><span class="p">]</span>  <span class="c1"># num_bonds x hidden</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">a_message</span><span class="p">[</span><span class="n">b2a</span><span class="p">]</span> <span class="o">-</span> <span class="n">rev_message</span>  <span class="c1"># num_bonds x hidden</span>
+
+            <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_h</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span><span class="p">(</span><span class="nb">input</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span>  <span class="c1"># num_bonds x hidden_size</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_layer</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>  <span class="c1"># num_bonds x hidden</span>
+
+        <span class="c1"># atom hidden</span>
+        <span class="n">a2x</span> <span class="o">=</span> <span class="n">a2b</span>
+        <span class="n">nei_a_message</span> <span class="o">=</span> <span class="n">index_select_ND</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">a2x</span><span class="p">)</span>  <span class="c1"># num_atoms x max_num_bonds x hidden</span>
+        <span class="n">a_message</span> <span class="o">=</span> <span class="n">nei_a_message</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># num_atoms x hidden</span>
+        <span class="n">a_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">f_atoms</span><span class="p">,</span> <span class="n">a_message</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># num_atoms x (atom_fdim + hidden)</span>
+        <span class="n">atom_hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">W_o_a</span><span class="p">(</span><span class="n">a_input</span><span class="p">))</span>  <span class="c1"># num_atoms x hidden</span>
+        <span class="n">atom_hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_layer</span><span class="p">(</span><span class="n">atom_hiddens</span><span class="p">)</span>  <span class="c1"># num_atoms x hidden</span>
+
+        <span class="c1"># bond hidden</span>
+        <span class="n">b_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">f_bonds</span><span class="p">,</span> <span class="n">message</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bond_hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">W_o_b</span><span class="p">(</span><span class="n">b_input</span><span class="p">))</span>
+        <span class="n">bond_hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_layer</span><span class="p">(</span><span class="n">bond_hiddens</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">atom_hiddens</span><span class="p">,</span> <span class="n">a_scope</span><span class="p">,</span> <span class="n">bond_hiddens</span><span class="p">,</span> <span class="n">b_scope</span><span class="p">,</span> <span class="n">b2br</span><span class="p">,</span> <span class="n">bond_types</span>  <span class="c1"># num_atoms x hidden, remove the first one which is zero padding</span></div></div>
+
+
+<div class="viewcode-block" id="MPN"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.mpn.MPN">[docs]</a><span class="k">class</span> <span class="nc">MPN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">atom_fdim</span><span class="p">,</span> <span class="n">bond_fdim</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MPN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">MPNEncoder</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">atom_fdim</span><span class="p">,</span> <span class="n">bond_fdim</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MPN.forward"><a class="viewcode-back" href="../../qmdesc.html#qmdesc.mpn.MPN.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="o">*</span><span class="n">inputs</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Yanfei Guan, Haoyang Wu, Duminda Ranasinghe
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

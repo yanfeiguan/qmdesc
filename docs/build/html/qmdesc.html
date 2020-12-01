@@ -1,0 +1,599 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qmdesc package &mdash; qmdesc 1.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> qmdesc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">qmdesc package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-qmdesc.featurization">qmdesc.featurization module</a></li>
+<li><a class="reference internal" href="#module-qmdesc.ffn">qmdesc.ffn module</a></li>
+<li><a class="reference internal" href="#module-qmdesc.handler">qmdesc.handler module</a></li>
+<li><a class="reference internal" href="#module-qmdesc.model">qmdesc.model module</a></li>
+<li><a class="reference internal" href="#module-qmdesc.mpn">qmdesc.mpn module</a></li>
+<li><a class="reference internal" href="#module-qmdesc.nn_utils">qmdesc.nn_utils module</a></li>
+<li><a class="reference internal" href="#module-qmdesc">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qmdesc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>qmdesc package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/qmdesc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="qmdesc-package">
+<h1>qmdesc package<a class="headerlink" href="#qmdesc-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-qmdesc.featurization">
+<span id="qmdesc-featurization-module"></span><h2>qmdesc.featurization module<a class="headerlink" href="#module-qmdesc.featurization" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="qmdesc.featurization.BatchMolGraph">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">BatchMolGraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol_graphs</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#qmdesc.featurization.MolGraph" title="qmdesc.featurization.MolGraph">qmdesc.featurization.MolGraph</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/featurization.html#BatchMolGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.BatchMolGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A BatchMolGraph represents the graph structure and featurization of a batch of molecules.
+A BatchMolGraph contains the attributes of a MolGraph plus:
+- smiles_batch: A list of smiles strings.
+- n_mols: The number of molecules in the batch.
+- atom_fdim: The dimensionality of the atom features.
+- bond_fdim: The dimensionality of the bond features (technically the combined atom/bond features).
+- a_scope: A list of tuples indicating the start and end atom indices for each molecule.
+- b_scope: A list of tuples indicating the start and end bond indices for each molecule.
+- max_num_bonds: The maximum number of bonds neighboring an atom in this batch.
+- b2b: (Optional) A mapping from a bond index to incoming bond indices.
+- a2a: (Optional): A mapping from an atom index to neighboring atom indices.</p>
+<dl class="py method">
+<dt id="qmdesc.featurization.BatchMolGraph.get_a2a">
+<code class="sig-name descname">get_a2a</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; torch.LongTensor<a class="reference internal" href="_modules/qmdesc/featurization.html#BatchMolGraph.get_a2a"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.BatchMolGraph.get_a2a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes (if necessary) and returns a mapping from each atom index to all neighboring atom indices.
+:return: A PyTorch tensor containing the mapping from each bond index to all the incodming bond indices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="qmdesc.featurization.BatchMolGraph.get_b2b">
+<code class="sig-name descname">get_b2b</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; torch.LongTensor<a class="reference internal" href="_modules/qmdesc/featurization.html#BatchMolGraph.get_b2b"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.BatchMolGraph.get_b2b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes (if necessary) and returns a mapping from each bond index to all the incoming bond indices.
+:return: A PyTorch tensor containing the mapping from each bond index to all the incoming bond indices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="qmdesc.featurization.BatchMolGraph.get_components">
+<code class="sig-name descname">get_components</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>torch.FloatTensor<span class="p">, </span>torch.FloatTensor<span class="p">, </span>torch.LongTensor<span class="p">, </span>torch.LongTensor<span class="p">, </span>torch.LongTensor<span class="p">, </span>List<span class="p">[</span>Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>List<span class="p">[</span>Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>torch.LongTensor<span class="p">, </span>torch.FloatTensor<span class="p">]</span><a class="reference internal" href="_modules/qmdesc/featurization.html#BatchMolGraph.get_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.BatchMolGraph.get_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the components of the BatchMolGraph.
+:return: A tuple containing PyTorch tensors with the atom features, bond features, and graph structure
+and two lists indicating the scope of the atoms and bonds (i.e. which molecules they belong to).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="qmdesc.featurization.MolGraph">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">MolGraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">smiles</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/featurization.html#MolGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.MolGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A MolGraph represents the graph structure and featurization of a single molecule.
+A MolGraph computes the following attributes:
+- smiles: Smiles string.
+- n_atoms: The number of atoms in the molecule.
+- n_bonds: The number of bonds in the molecule.
+- f_atoms: A mapping from an atom index to a list atom features.
+- f_bonds: A mapping from a bond index to a list of bond features.
+- a2b: A mapping from an atom index to a list of incoming bond indices.
+- b2a: A mapping from a bond index to the index of the atom the bond originates from.
+- b2revb: A mapping from a bond index to the index of the reverse bond.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.featurization.atom_features">
+<code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">atom_features</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atom</span><span class="p">:</span> <span class="n">rdkit.Chem.rdchem.Atom</span></em>, <em class="sig-param"><span class="n">functional_groups</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/qmdesc/featurization.html#atom_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.atom_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a feature vector for an atom.
+:param atom: An RDKit atom.
+:param functional_groups: A k-hot vector indicating the functional groups the atom belongs to.
+:return: A list containing the atom features.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.featurization.bond_features">
+<code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">bond_features</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bond</span><span class="p">:</span> <span class="n">rdkit.Chem.rdchem.Bond</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/qmdesc/featurization.html#bond_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.bond_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a feature vector for a bond.
+:param bond: A RDKit bond.
+:return: A list containing the bond features.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.featurization.clear_cache">
+<code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">clear_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/featurization.html#clear_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.clear_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears featurization cache.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.featurization.get_atom_fdim">
+<code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">get_atom_fdim</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/qmdesc/featurization.html#get_atom_fdim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.get_atom_fdim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the dimensionality of atom features.
+:param: Arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.featurization.get_bond_fdim">
+<code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">get_bond_fdim</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/qmdesc/featurization.html#get_bond_fdim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.get_bond_fdim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the dimensionality of bond features.
+:param: Arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.featurization.mol2graph">
+<code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">mol2graph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">smiles_batch</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#qmdesc.featurization.BatchMolGraph" title="qmdesc.featurization.BatchMolGraph">qmdesc.featurization.BatchMolGraph</a><a class="reference internal" href="_modules/qmdesc/featurization.html#mol2graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.mol2graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a list of SMILES strings to a BatchMolGraph containing the batch of molecular graphs.
+:param smiles_batch: A list of SMILES strings.
+:return: A BatchMolGraph containing the combined molecular graph for the molecules</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.featurization.onek_encoding_unk">
+<code class="sig-prename descclassname">qmdesc.featurization.</code><code class="sig-name descname">onek_encoding_unk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">choices</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>int<span class="p">]</span><a class="reference internal" href="_modules/qmdesc/featurization.html#onek_encoding_unk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.featurization.onek_encoding_unk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a one-hot encoding.
+:param value: The value for which the encoding should be one.
+:param choices: A list of possible values.
+:return: A one-hot encoding of the value in a list of length len(choices) + 1.
+If value is not in the list of choices, then the final element in the encoding is 1.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qmdesc.ffn">
+<span id="qmdesc-ffn-module"></span><h2>qmdesc.ffn module<a class="headerlink" href="#module-qmdesc.ffn" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="qmdesc.ffn.AttrProxy">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.ffn.</code><code class="sig-name descname">AttrProxy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">module</span></em>, <em class="sig-param"><span class="n">prefix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#AttrProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.AttrProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Translates index lookups into attribute lookups</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="qmdesc.ffn.DenseLayers">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.ffn.</code><code class="sig-name descname">DenseLayers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">first_linear_dim</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">hidden_size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">num_layers</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">output_size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="p">:</span> <span class="n">torch.nn.modules.module.Module</span></em>, <em class="sig-param"><span class="n">activation</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#DenseLayers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.DenseLayers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Dense layers</p>
+<dl class="py method">
+<dt id="qmdesc.ffn.DenseLayers.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#DenseLayers.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.DenseLayers.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="qmdesc.ffn.DenseLayers.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#qmdesc.ffn.DenseLayers.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="qmdesc.ffn.FFN">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.ffn.</code><code class="sig-name descname">FFN</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">features_size</span></em>, <em class="sig-param"><span class="n">hidden_size</span></em>, <em class="sig-param"><span class="n">num_layers</span></em>, <em class="sig-param"><span class="n">output_size</span></em>, <em class="sig-param"><span class="n">dropout</span></em>, <em class="sig-param"><span class="n">activation</span></em>, <em class="sig-param"><span class="n">constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ffn_type</span><span class="o">=</span><span class="default_value">'atom'</span></em>, <em class="sig-param"><span class="n">attention</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#FFN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.FFN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>A Feedforward netowrk reading out properties from fingerprint</p>
+<dl class="py method">
+<dt id="qmdesc.ffn.FFN.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#FFN.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.FFN.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the FFN on input</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="qmdesc.ffn.FFN.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#qmdesc.ffn.FFN.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="qmdesc.ffn.FFNAtten">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.ffn.</code><code class="sig-name descname">FFNAtten</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">features_size</span></em>, <em class="sig-param"><span class="n">hidden_size</span></em>, <em class="sig-param"><span class="n">num_layers</span></em>, <em class="sig-param"><span class="n">output_size</span></em>, <em class="sig-param"><span class="n">dropout</span></em>, <em class="sig-param"><span class="n">activation</span></em>, <em class="sig-param"><span class="n">constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ffn_type</span><span class="o">=</span><span class="default_value">'atom'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#FFNAtten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.FFNAtten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dl class="py method">
+<dt id="qmdesc.ffn.FFNAtten.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#FFNAtten.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.FFNAtten.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the FFN on input</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="qmdesc.ffn.FFNAtten.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#qmdesc.ffn.FFNAtten.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="qmdesc.ffn.MultiReadout">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.ffn.</code><code class="sig-name descname">MultiReadout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="p">:</span> <span class="n">argparse.Namespace</span></em>, <em class="sig-param"><span class="n">atom_targets</span></em>, <em class="sig-param"><span class="n">bond_targets</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">atom_constraints</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bond_constraints</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">attention</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#MultiReadout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.MultiReadout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>A fake list of FFNs for reading out as suggested in
+<a class="reference external" href="https://discuss.pytorch.org/t/list-of-nn-module-in-a-nn-module/219/3">https://discuss.pytorch.org/t/list-of-nn-module-in-a-nn-module/219/3</a></p>
+<dl class="py method">
+<dt id="qmdesc.ffn.MultiReadout.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">input</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/ffn.html#MultiReadout.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.ffn.MultiReadout.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="qmdesc.ffn.MultiReadout.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#qmdesc.ffn.MultiReadout.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-qmdesc.handler">
+<span id="qmdesc-handler-module"></span><h2>qmdesc.handler module<a class="headerlink" href="#module-qmdesc.handler" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the PathwayRankingHandler for use in Torchserve.</p>
+<dl class="py class">
+<dt id="qmdesc.handler.ReactivityDescriptorHandler">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.handler.</code><code class="sig-name descname">ReactivityDescriptorHandler</code><a class="reference internal" href="_modules/qmdesc/handler.html#ReactivityDescriptorHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.handler.ReactivityDescriptorHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="qmdesc.handler.ReactivityDescriptorHandler.inference">
+<code class="sig-name descname">inference</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/handler.html#ReactivityDescriptorHandler.inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.handler.ReactivityDescriptorHandler.inference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="qmdesc.handler.ReactivityDescriptorHandler.postprocess">
+<code class="sig-name descname">postprocess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inference_output</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/handler.html#ReactivityDescriptorHandler.postprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.handler.ReactivityDescriptorHandler.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="qmdesc.handler.ReactivityDescriptorHandler.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">smiles</span></em>, <em class="sig-param"><span class="n">sdf</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/handler.html#ReactivityDescriptorHandler.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.handler.ReactivityDescriptorHandler.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="qmdesc.handler.ReactivityDescriptorHandler.preprocess">
+<code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">smiles</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/handler.html#ReactivityDescriptorHandler.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.handler.ReactivityDescriptorHandler.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="qmdesc.handler.qmdesc">
+<code class="sig-prename descclassname">qmdesc.handler.</code><code class="sig-name descname">qmdesc</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/qmdesc/handler.html#qmdesc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.handler.qmdesc" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the entry point for the command line command :code:’qmdesc’</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qmdesc.model">
+<span id="qmdesc-model-module"></span><h2>qmdesc.model module<a class="headerlink" href="#module-qmdesc.model" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="qmdesc.model.MoleculeModel">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.model.</code><code class="sig-name descname">MoleculeModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em>, <em class="sig-param"><span class="n">atom_fdim</span></em>, <em class="sig-param"><span class="n">bond_fdim</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/model.html#MoleculeModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.model.MoleculeModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>A MoleculeModel is a model which contains a message passing network following by feed-forward layers.</p>
+<dl class="py method">
+<dt id="qmdesc.model.MoleculeModel.create_encoder">
+<code class="sig-name descname">create_encoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="p">:</span> <span class="n">argparse.Namespace</span></em>, <em class="sig-param"><span class="n">atom_fdim</span></em>, <em class="sig-param"><span class="n">bond_fdim</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/model.html#MoleculeModel.create_encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.model.MoleculeModel.create_encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the message passing encoder for the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – Arguments.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="qmdesc.model.MoleculeModel.create_ffn">
+<code class="sig-name descname">create_ffn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="p">:</span> <span class="n">argparse.Namespace</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/model.html#MoleculeModel.create_ffn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.model.MoleculeModel.create_ffn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the feed-forward network for the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – Arguments.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="qmdesc.model.MoleculeModel.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/model.html#MoleculeModel.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.model.MoleculeModel.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the MoleculeModel on input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> – Input.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output of the MoleculeModel.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="qmdesc.model.MoleculeModel.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#qmdesc.model.MoleculeModel.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-qmdesc.mpn">
+<span id="qmdesc-mpn-module"></span><h2>qmdesc.mpn module<a class="headerlink" href="#module-qmdesc.mpn" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="qmdesc.mpn.MPN">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.mpn.</code><code class="sig-name descname">MPN</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em>, <em class="sig-param"><span class="n">atom_fdim</span></em>, <em class="sig-param"><span class="n">bond_fdim</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/mpn.html#MPN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.mpn.MPN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dl class="py method">
+<dt id="qmdesc.mpn.MPN.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/mpn.html#MPN.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.mpn.MPN.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="qmdesc.mpn.MPN.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#qmdesc.mpn.MPN.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="qmdesc.mpn.MPNEncoder">
+<em class="property">class </em><code class="sig-prename descclassname">qmdesc.mpn.</code><code class="sig-name descname">MPNEncoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="p">:</span> <span class="n">argparse.Namespace</span></em>, <em class="sig-param"><span class="n">atom_fdim</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">bond_fdim</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmdesc/mpn.html#MPNEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.mpn.MPNEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>A message passing neural network for encoding a molecule.</p>
+<dl class="py method">
+<dt id="qmdesc.mpn.MPNEncoder.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span> &#x2192; torch.FloatTensor<a class="reference internal" href="_modules/qmdesc/mpn.html#MPNEncoder.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.mpn.MPNEncoder.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes a batch of molecular graphs.
+:return: A PyTorch tensor of shape (num_molecules, hidden_size) containing the encoding of each molecule.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="qmdesc.mpn.MPNEncoder.training">
+<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#qmdesc.mpn.MPNEncoder.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-qmdesc.nn_utils">
+<span id="qmdesc-nn-utils-module"></span><h2>qmdesc.nn_utils module<a class="headerlink" href="#module-qmdesc.nn_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="qmdesc.nn_utils.index_select_ND">
+<code class="sig-prename descclassname">qmdesc.nn_utils.</code><code class="sig-name descname">index_select_ND</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span><span class="p">:</span> <span class="n">torch.Tensor</span></em>, <em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">torch.Tensor</span></em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="_modules/qmdesc/nn_utils.html#index_select_ND"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qmdesc.nn_utils.index_select_ND" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects the message features from source corresponding to the atom or bond indices in <code class="code docutils literal notranslate"><span class="pre">index</span></code>.
+:param source: A tensor of shape <code class="code docutils literal notranslate"><span class="pre">(num_bonds,</span> <span class="pre">hidden_size)</span></code> containing message features.
+:param index: A tensor of shape <code class="code docutils literal notranslate"><span class="pre">(num_atoms/num_bonds,</span> <span class="pre">max_num_bonds)</span></code> containing the atom or bond</p>
+<blockquote>
+<div><p>indices to select from <code class="code docutils literal notranslate"><span class="pre">source</span></code>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tensor of shape <code class="code docutils literal notranslate"><span class="pre">(num_atoms/num_bonds,</span> <span class="pre">max_num_bonds,</span> <span class="pre">hidden_size)</span></code> containing the message
+features corresponding to the atoms/bonds specified in index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qmdesc">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-qmdesc" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Yanfei Guan, Haoyang Wu, Duminda Ranasinghe
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
