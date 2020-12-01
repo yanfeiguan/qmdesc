@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../qmdesc'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +22,7 @@ copyright = '2020, MLPDS @ MIT, Yanfei Guan, Haoyang Wu, Duminda Ranasinghe'
 author = 'Yanfei Guan, Haoyang Wu, Duminda Ranasinghe'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.1'
+release = '1.0.4'
 
 
 # -- General configuration ---------------------------------------------------
