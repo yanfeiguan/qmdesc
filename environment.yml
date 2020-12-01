@@ -1,11 +1,13 @@
-name: chemprop_atom_api
+name: chemprop
+
 channels:
-  - rdkit
-  - pytorch
-  - anaconda
   - conda-forge
+  - pytorch
+  - rdkit
+
 dependencies:
-  - numpy=1.17.3
-  - pandas=0.25.3
-  - rdkit=2019.09.3.0
-  - pytorch=1.3.1
+  - python>=3.6
+  - numpy>=1.18.1
+  - pip>=20.0.2
+  - pytorch>=1.4.0
+  - rdkit>=2020.03.1.0
