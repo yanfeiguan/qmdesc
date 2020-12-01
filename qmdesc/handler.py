@@ -12,15 +12,16 @@ class ReactivityDescriptorHandler():
     '''Wrap the trained atom-bond qm descriptors predicting model
 
     Predict QM descriptors for a given SMILES string of organic compound containing C, H, O, N, P, S, F, Cl, Br, I, B
+
+    Example:
+            >>> from qmdesc import ReactivityDescriptorHandler
+            >>> handler = ReactivityDescriptorHandler()
+            >>> results = handler.predict('CCCC')
     '''
 
     def __init__(self):
         """
         ReactivityDescriptorHandler constructor.
-
-        Example:
-            >>> from qmdesc import ReactivityDescriptorHandler
-            >>> handler = ReactivityDescriptorHandler()
         """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
