@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../../qmdesc'))
 # -- Project information -----------------------------------------------------
 
 project = 'qmdesc'
-copyright = '2020, Yanfei Guan, Haoyang Wu, Duminda Ranasinghe'
+copyright = '2020, MLPDS @ MIT, Yanfei Guan, Haoyang Wu, Duminda Ranasinghe'
 author = 'Yanfei Guan, Haoyang Wu, Duminda Ranasinghe'
 
 # The full version, including alpha/beta/rc tags

@@ -1,5 +1,7 @@
 # qmdesc
 
+[![GitHub license](https://img.shields.io/github/license/yanfeiguan/qmdesc)](https://github.com/yanfeiguan/qmdesc/blob/master/LICENSE)
+
 A trained multitask constraint message passing neural networks 
 for QM atomic/bond property predictions as described in the paper 
 [Regio-Selectivity Prediction with a Machine-Learned Reaction Representation and On-the-Fly Quantum Mechanical Descriptors](https://doi.org/10.26434/chemrxiv.12907316.v1).
