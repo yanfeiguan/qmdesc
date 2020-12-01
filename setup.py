@@ -16,7 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     license='MIT',
     install_requires=[
-        'torch>=1.5.1',
+        'torch>=1.4.0',
         'numpy>=1.18.1',
     ],
     url="https://github.com/yanfeiguan/qmdesc",
