@@ -15,3 +15,5 @@ QM descriptors under B3LYP/def2svp level of theory that can be predicted with th
 4. NMR shielding constants
 5. Bond lengths
 6. Bond orders
+
+**Documentation:** Documentation of Chemprop is available at https://qmdesc.readthedocs.io/en/latest/index.html.
