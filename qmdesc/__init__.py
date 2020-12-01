@@ -1,1 +1,1 @@
-from .handler import ReactivityDescriptorHandler
+from .handler import ReactivityDescriptorHandler, qmdesc

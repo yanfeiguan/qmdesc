@@ -1,15 +1,27 @@
 """
 This module defines the PathwayRankingHandler for use in Torchserve.
 """
+from typing import Dict
 
+import pkg_resources
 import torch
 from qmdesc.featurization import mol2graph, get_atom_fdim, get_bond_fdim
 from rdkit import Chem
 
-
 class ReactivityDescriptorHandler():
+    '''Wrap the trained atom-bond qm descriptors predicting model
+
+    Predict QM descriptors for a given SMILES string of organic compound containing C, H, O, N, P, S, F, Cl, Br, I, B
+    '''
 
     def __init__(self):
+        """
+        ReactivityDescriptorHandler constructor.
+
+        Example:
+            >>> from qmdesc import ReactivityDescriptorHandler
+            >>> handler = ReactivityDescriptorHandler()
+        """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         model_pt_path = "QM_137k.pt"
@@ -17,7 +29,8 @@ class ReactivityDescriptorHandler():
         from qmdesc.model import MoleculeModel
 
         # Load model and args
-        state = torch.load(model_pt_path, lambda storage, loc: storage)
+        stream = pkg_resources.resource_stream(__name__, model_pt_path)
+        state = torch.load(stream, lambda storage, loc: storage)
         args, loaded_state_dict = state['args'], state['state_dict']
         atom_fdim = get_atom_fdim()
         bond_fdim = get_bond_fdim() + atom_fdim
@@ -28,9 +41,14 @@ class ReactivityDescriptorHandler():
         self.model.eval()
 
         self.initalized = True
-        print('Model file {0} loaded successfully.'.format(model_pt_path))
 
-    def preprocess(self, smiles):
+    def _preprocess(self, smiles: str):
+        """
+        Preprocess SMILES
+
+        :param smiles: SMILES string
+        :return: molecular graph
+        """
         mol_graph = mol2graph(smiles)
         f_atoms, f_bonds, a2b, b2a, b2revb, a_scope, b_scope, b2br, bond_types = mol_graph.get_components()
         f_atoms, f_bonds, a2b, b2a, b2revb, b2br, bond_types = \
@@ -39,12 +57,24 @@ class ReactivityDescriptorHandler():
 
         return f_atoms, f_bonds, a2b, b2a, b2revb, a_scope, b_scope, b2br, bond_types
 
-    def inference(self, data):
+    def _inference(self, data):
+        """
+        model prediction
+
+        :param data: molecular graph
+        :return: The output of the model
+        """
         descs = self.model(data)
 
         return descs
 
-    def postprocess(self, inference_output):
+    def _postprocess(self, inference_output) -> Dict:
+        """
+        Postprocess results
+
+        :param inference_output: The output of the model
+        :return: Results
+        """
 
         smiles = inference_output['smiles']
         descs = inference_output['descs']
@@ -57,16 +87,25 @@ class ReactivityDescriptorHandler():
                     'fukui_elec': partial_elec, 'NMR': NMR, 'bond_order': bond_order, 'bond_length': bond_distance}
         return results
 
-    def predict(self, smiles, sdf=None):
+    def predict(self,
+                smiles: str,
+                sdf: str = None) -> Dict:
+        """
+        Wrap the preprocess, inference, and postprocess
 
-        outputs = self.inference(self.preprocess([smiles]))
+        :param smiles: Input SMILES string
+        :param sdf: Output .sdf file
+        :return: A dictionary containing the prediction result
+        """
+
+        outputs = self._inference(self._preprocess([smiles]))
         postprocess_inputs = {'smiles': smiles, 'descs': outputs}
-        results = self.postprocess(postprocess_inputs)
+        results = self._postprocess(postprocess_inputs)
 
         if sdf is not None:
-
             if not sdf.endswith('.sdf'):
                 print('must provide a sdf name end up with \'.sdf\'')
+                return results
 
             writer = Chem.SDWriter(sdf)
             m = Chem.MolFromSmiles(smiles)
@@ -86,9 +125,22 @@ class ReactivityDescriptorHandler():
 
         return results
 
-if __name__ == '__main__':
+def qmdesc() -> None:
+    """
+    This is the entry point for the command line command :code:'qmdesc'
 
-    handler = ReactivityDescriptorHandler()
-    result = handler.predict('C', 'test.sdf')
-    print(result)
+    Example:
+       $ qmdesc CCCC --sdf CCCC.sdf
+    """
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('smiles', type=str,
+                        help='Input smiles string')
+    parser.add_argument('--sdf', default='qmdesc.sdf', type=str,
+                        help='output sdf saving the qm descriptors')
+    args = parser.parse_args()
+
+    predictor = ReactivityDescriptorHandler()
+    results = predictor.predict(args.smiles, sdf=args.sdf)
+
 

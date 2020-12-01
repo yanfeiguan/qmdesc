@@ -8,7 +8,7 @@ else:
 
 setuptools.setup(
     name="qmdesc", # Replace with your own username
-    version="v1.0",
+    version="1.0.4",
     author="Yanfei Guan",
     author_email="yanfeig@mit.edu",
     description="A qm descriptor prediction package",
@@ -21,6 +21,13 @@ setuptools.setup(
     ],
     url="https://github.com/yanfeiguan/qmdesc",
     packages=setuptools.find_packages(),
+    include_package_data=True,
+    package_data={'': ['*.pt']},
+    entry_points={
+        'console_scripts': [
+            'qmdesc=qmdesc:qmdesc',
+        ]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -31,5 +38,6 @@ setuptools.setup(
         'chemistry',
         'machine learning',
         'QM descriptors',
-    ]
+    ],
+
 )
