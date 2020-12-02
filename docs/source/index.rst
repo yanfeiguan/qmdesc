@@ -12,7 +12,7 @@ hirshfeld partial charges, nucleophilicity/electrophilicity Fukui indcides, NMR 
 This work was first presented in `Regio-Selectivity Prediction with a Machine-Learned Reaction Representation and On-the-Fly Quantum Mechanical Descriptors <https://doi.org/10.26434/chemrxiv.12907316.v1>`_.
 
 qmdesc can be used through either `python module <https://qmdesc.readthedocs.io/en/latest/qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler>`_ or
-`command line <https://qmdesc.readthedocs.io/en/latest/qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler>`_
+`command line <https://qmdesc.readthedocs.io/en/latest/qmdesc.html#qmdesc.handler.qmdesc>`_
 
 Prerequisite: `RDKit <https://anaconda.org/rdkit/rdkit>`_
 
