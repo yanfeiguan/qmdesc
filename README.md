@@ -2,6 +2,7 @@
 
 [![GitHub license](https://img.shields.io/github/license/yanfeiguan/qmdesc)](https://github.com/yanfeiguan/qmdesc/blob/master/LICENSE)
 [![Documentation Status](https://readthedocs.org/projects/qmdesc/badge/?version=latest)](https://qmdesc.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/qmdesc.svg)](https://badge.fury.io/py/qmdesc)
 
 
 A trained multitask constraint message passing neural networks 
