@@ -8,7 +8,7 @@ else:
 
 setuptools.setup(
     name="qmdesc", # Replace with your own username
-    version="1.0.4",
+    version="1.0.5",
     author="Yanfei Guan",
     author_email="yanfeig@mit.edu",
     description="A qm descriptor prediction package",
