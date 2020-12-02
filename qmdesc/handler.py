@@ -84,8 +84,9 @@ class ReactivityDescriptorHandler():
 
         partial_charge, partial_neu, partial_elec, NMR, bond_order, bond_distance = descs
 
-        results = {'smiles': smiles, 'partial_charge': partial_charge, 'fukui_neu': partial_neu,
-                    'fukui_elec': partial_elec, 'NMR': NMR, 'bond_order': bond_order, 'bond_length': bond_distance}
+        results = {'smiles': smiles, 'partial_charge': partial_charge.flatten(), 'fukui_neu': partial_neu.flatten(),
+                   'fukui_elec': partial_elec.flatten(), 'NMR': NMR.flatten(), 'bond_order': bond_order.flatten(),
+                   'bond_length': bond_distance.flatten()}
         return results
 
     def predict(self,
@@ -117,7 +118,7 @@ class ReactivityDescriptorHandler():
                 if p == 'smiles':
                     m.SetProp(p_upper, results[p])
                 else:
-                    m.SetProp(p_upper, ','.join(str(x) for x in results[p].flatten()))
+                    m.SetProp(p_upper, ','.join(str(x) for x in results[p]))
 
             name = sdf.strip('.sdf')
             m.SetProp('_Name', name)
