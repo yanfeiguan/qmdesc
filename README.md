@@ -18,3 +18,19 @@ QM descriptors under B3LYP/def2svp level of theory that can be predicted with th
 6. Bond orders
 
 **Documentation:** Documentation of Chemprop is available at https://qmdesc.readthedocs.io/en/latest/index.html.
+
+## Requirements
+
+* RDKit
+
+### Installation
+For all installations, we recommend using conda to get the necessary rdkit dependency:
+```console
+conda install -c rdkit rdkit
+pip install qmdesc
+```
+
+Or from envrioment.yml 
+```console
+conda create --name qmdesc --file environment.yml
+```

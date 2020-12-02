@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 qmdesc
-==================================
+======
 `qmdesc <https://github.com/yanfeiguan/qmdesc>`_ is a package for QM atomic/bond descriptors prediction
 
 At its core, qmdesc contains a derived `ChemProp <https://github.com/chemprop/chemprop>`_ model that was trained on QM descriptors including
@@ -13,6 +13,8 @@ This work was first presented in `Regio-Selectivity Prediction with a Machine-Le
 
 qmdesc can be used through either `python module <https://qmdesc.readthedocs.io/en/latest/qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler>`_ or
 `command line <https://qmdesc.readthedocs.io/en/latest/qmdesc.html#qmdesc.handler.ReactivityDescriptorHandler>`_
+
+Prerequisite: `RDKit <https://anaconda.org/rdkit/rdkit>`_
 
 
 .. toctree::
